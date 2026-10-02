@@ -1,0 +1,21 @@
+{
+  "sourceName": "Shiro (SUB)",
+  "iconUrl": "https://shiro.so/favicon.ico",
+  "author": {
+    "name": "Custom module",
+    "icon": "https://shiro.so/favicon.ico"
+  },
+  "version": "1.0.0",
+  "language": "Japanese (SUB)",
+  "description": "Shiro Japanese-audio Sub and Hard Sub servers. Dub excluded.",
+  "baseUrl": "https://shiro.so/",
+  "streamType": "HLS",
+  "quality": "1080p",
+  "searchBaseUrl": "https://shiro.so/anime/%s",
+  "scriptUrl": "https://YOUR-HOST/shiro-sub.js",
+  "type": "anime",
+  "downloadSupport": false,
+  "asyncJS": true,
+  "streamAsyncJS": true,
+  "softsub": true
+}
