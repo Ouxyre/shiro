@@ -12,7 +12,7 @@
   "streamType": "HLS",
   "quality": "1080p",
   "searchBaseUrl": "https://shiro.so/anime/%s",
-  "scriptUrl": "https://YOUR-HOST/shiro-sub.js",
+  "scriptUrl": "https://raw.githubusercontent.com/Ouxyre/shiro/main/shiro-sub.js",
   "type": "anime",
   "downloadSupport": false,
   "asyncJS": true,
