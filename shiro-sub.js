@@ -1,4 +1,4 @@
-/* Shiro SUB 1.0.0. MIT. Japanese/sub variants only; original media timelines. */
+/* Shiro SUB 1.0.3. MIT. Japanese/sub variants only; original media timelines. */
 var SH_BASE='https://shiro.so',SH_COOKIE='',SH_CACHE={};
 var SH_UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
 function shLog(e){console.log('Shiro: '+String(e&&e.message||e));}
@@ -9,7 +9,10 @@ async function shFetch(url,method,body){
  var h=shHeaders();if(body)h['Content-Type']='application/json';
  // Do not send the site cookie to the catalog provider.
  if(url.indexOf(SH_BASE+'/')!==0){delete h.Cookie;delete h.Origin;delete h.Referer;}
- var r=await fetchv2(url,h,method||'GET',body||null);
+ // Shiroxi's fetchv2 bridge converts its body argument with JS toString().
+ // Pass JSON text explicitly; passing an object becomes "[object Object]".
+ var payload=body==null?null:typeof body==='string'?body:JSON.stringify(body);
+ var r=await fetchv2(url,h,method||'GET',payload);
  if(r&&r.headers){var value='';if(typeof r.headers.get==='function')value=r.headers.get('set-cookie')||'';else Object.keys(r.headers).forEach(function(k){if(k.toLowerCase()==='set-cookie')value=String(r.headers[k]);});var m=value.match(/(?:^|[,;]\s*)(shiro_watch=[^;,\s]+)/);if(m)SH_COOKIE=m[1];}
  if(r&&r.status>=400)throw Error('HTTP '+r.status+' from '+url.split('/')[2]);
  return typeof r==='string'?r:typeof r.text==='function'?await r.text():r._data||r.body;

@@ -17,6 +17,6 @@ Use the raw GitHub URL, not a page address containing `/blob/`. The helper works
 
 ## Notes
 
-The source needs a Sora/Shiroxi version whose `fetchv2` supports POST requests and returns response headers. It uses a short-lived Shiro watch cookie and passes it to the selected stream and subtitle. On October 2, 2026, live checks returned search results for One Piece, Frieren and Naruto; details and episodes loaded; five Sub servers, a nested HLS playlist and sample segment, and two English subtitle tracks passed. A sixth server returned HTTP 502 and was automatically omitted. This confirms the module filters failed links; it does not verify long-duration audio sync. Network or Cloudflare restrictions may still affect the app.
+The source needs a Sora/Shiroxi version whose `fetchv2` supports POST requests and returns response headers. POST bodies are sent as JSON text for Shiroxi compatibility. It uses a short-lived Shiro watch cookie and passes it to the selected stream and subtitle. On October 2, 2026, live checks returned search results for One Piece, Frieren and Naruto; details and episodes loaded; all six returned Sub servers, a nested HLS playlist and sample segment, and three English subtitle tracks passed. This does not verify long-duration audio sync. Network or Cloudflare restrictions may still affect the app.
 
 The module does not transcode or alter media timestamps. Try the MP4 server or another server if HLS drifts; if every server drifts at the same point, the issue may be in the source encoding or the app's playback.
