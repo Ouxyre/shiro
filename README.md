@@ -1,6 +1,6 @@
 # Shiro (SUB) for Sora / Shiroxi
 
-This module searches Shiro's catalog, lists aired episodes, and returns Shiro's available Japanese-audio **Sub** and **Hard Sub** sources. Dub is excluded. It checks each signed stream when loading an episode and omits servers that are currently failing. When a working source has an English subtitle track, it is included with the server name so you can match it to that server.
+This module searches Shiro's catalog, lists aired episodes, and returns every available Japanese-audio **Sub** and **Hard Sub** source. Dub is excluded. It returns each freshly signed server directly to Shiroxi; this avoids falsely rejecting playable binary streams during the module's loading step. When a source has an English subtitle track, it is included with the server name so you can match it to that server.
 
 Shiro provides HLS and MP4 servers. Each is returned separately so you can switch servers if one buffers or drifts. The module passes through the site's original media and cannot correct a timing problem already present in a stream or in the app's player.
 
@@ -17,6 +17,6 @@ Use the raw GitHub URL, not a page address containing `/blob/`. The helper works
 
 ## Notes
 
-The source needs a Sora/Shiroxi version whose `fetchv2` supports POST requests and returns response headers. POST bodies are sent as JSON text for Shiroxi compatibility. It uses a short-lived Shiro watch cookie and passes it to the selected stream and subtitle. On October 2, 2026, live checks returned search results for One Piece, Frieren and Naruto; details and episodes loaded; all six returned Sub servers, a nested HLS playlist and sample segment, and three English subtitle tracks passed. This does not verify long-duration audio sync. Network or Cloudflare restrictions may still affect the app.
+The source needs a Sora/Shiroxi version whose `fetchv2` supports POST requests and returns response headers. POST bodies are sent as JSON text for Shiroxi compatibility. It uses a short-lived Shiro watch cookie and passes it to the selected stream and subtitle. On October 2, 2026, live checks returned search results for One Piece, Frieren and Naruto; details and episodes loaded; six Sub servers, a nested HLS playlist and sample segment, and three English subtitle tracks passed. The source now returns the signed servers without preloading binary media, because Shiroxi represents binary responses as text during scripting. This does not verify long-duration audio sync. Network or Cloudflare restrictions may still affect the app.
 
 The module does not transcode or alter media timestamps. Try the MP4 server or another server if HLS drifts; if every server drifts at the same point, the issue may be in the source encoding or the app's playback.
