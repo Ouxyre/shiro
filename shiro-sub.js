@@ -25,21 +25,44 @@ function shCount(d){var cap=Number(d.episodes)||0,n=d.status==='FINISHED'?cap:0;
 async function searchResults(keyword){try{keyword=String(keyword||'').trim();if(keyword.length<2)return '[]';var r=await shGraph('query($q:String){Page(page:1,perPage:40){media(search:$q,type:ANIME){'+SH_FIELDS+'}}}',{q:keyword});return JSON.stringify(r.Page.media.filter(function(x){return shCount(x)>0;}).map(function(x){SH_CACHE[x.id]=x;return{title:shTitle(x),image:x.coverImage.large,href:shHref(x)};}));}catch(e){shLog(e);return '[]';}}
 async function extractDetails(url){try{var d=await shDetail(shID(url));return JSON.stringify({description:String(d.description||'').replace(/<[^>]*>/g,' ').replace(/&amp;/g,'&'),aliases:[d.title.romaji,d.title.native].filter(Boolean).join(' / '),airdate:String(d.startDate.year||'')});}catch(e){shLog(e);return '{}';}}
 async function extractEpisodes(url){try{var d=await shDetail(shID(url)),out=[],n=shCount(d);for(var i=1;i<=n;i++)out.push({number:i,href:shHref(d)+'/'+i});return JSON.stringify(out);}catch(e){shLog(e);return '[]';}}
-function shResults(data){
+async function shResults(data){
  if(data.status!=='ready'||!Array.isArray(data.variants))throw Error('Episode unavailable: '+(data.reason||data.status));
- var streams=[],tracks=[],seen={},trackSeen={};
+ var candidates=[],seen={};
  data.variants.filter(function(v){return v.id==='sub'||v.id==='hsub';}).forEach(function(v){(v.sources||[]).forEach(function(s){
  if(!s.url||!(/mpegurl/i.test(s.type)||s.type==='video/mp4'))return;
  var u=shURL(s.url);if(seen[u])return;seen[u]=true;
  var label=String(s.label||'Server')+' • '+(v.id==='hsub'?'Hard Sub':'Sub')+(s.type==='video/mp4'?' • MP4':' • HLS');
- streams.push({title:label,streamUrl:u,headers:shHeaders()});
- (s.tracks||[]).filter(function(t){return /^(en|eng)(-|$)/i.test(t.language||'')||/^English/i.test(t.label||'');}).forEach(function(t){var u=shURL(t.src);if(trackSeen[u])return;trackSeen[u]=true;tracks.push({title:String(s.label)+' — '+(t.label||'English'),url:u,headers:shHeaders()});});
+ candidates.push({title:label,streamUrl:u,headers:shHeaders(),format:s.type==='video/mp4'?'mp4':'hls',source:s});
  });});
- // Prefer MP4 for an alternative to adaptive HLS; retain every returned sub server.
+ // Check each signed link before offering it so temporary upstream failures do not
+ // appear as usable servers. MP4 is checked with a tiny byte range.
+ var checks=await Promise.all(candidates.map(async function(candidate){
+  var headers=shHeaders();
+  if(candidate.format==='mp4')headers.Range='bytes=0-1023';
+  try{
+   var response=await fetchv2(candidate.streamUrl,headers),status=response&&response.status||200;
+   if(status>=400)throw Error('HTTP '+status);
+   var body=typeof response==='string'?response:typeof response.text==='function'?await response.text():response._data||response.body||'';
+   if(candidate.format==='hls'&&!/^\s*#EXTM3U/.test(body))throw Error('Invalid HLS playlist');
+   if(candidate.format==='mp4'&&(status!==206||!body.length))throw Error('MP4 server does not support byte ranges');
+   var linkedTracks=(candidate.source.tracks||[]).filter(function(t){return /^(en|eng)(-|$)/i.test(t.language||'')||/^English/i.test(t.label||'');}).map(function(t){return{title:String(candidate.source.label)+' — '+(t.label||'English'),url:shURL(t.src),headers:shHeaders()};});
+   return {stream:{title:candidate.title,streamUrl:candidate.streamUrl,headers:candidate.headers},tracks:linkedTracks};
+  }catch(error){shLog(candidate.title+': '+String(error&&error.message||error));return null;}
+ }));
+ var streams=[],tracks=[],trackSeen={};
+ checks.forEach(function(result){if(!result)return;streams.push(result.stream);result.tracks.forEach(function(t){if(!trackSeen[t.url]){trackSeen[t.url]=true;tracks.push(t);}});});
+ // Prefer MP4 as the first alternative to adaptive HLS.
  streams.sort(function(a,b){return Number(b.title.indexOf('MP4')>=0)-Number(a.title.indexOf('MP4')>=0);});
+ // Keep only English subtitle files that the selected sub servers can currently serve.
+ var checkedTracks=await Promise.all(tracks.map(async function(track){try{
+  var r=await fetchv2(track.url,track.headers),status=r&&r.status||200;
+  if(status>=400)return null;
+  var content=typeof r==='string'?r:typeof r.text==='function'?await r.text():r._data||r.body||'';
+  return /WEBVTT|\[Script Info\]|^\s*\d+\s*\r?\n\s*\d{2}:\d{2}/.test(content)?track:null;
+ }catch(error){shLog('Subtitle: '+String(error&&error.message||error));return null;}}));
  // Shiroxi applies top-level subtitles to all streams. Never automatically attach
  // one server's subtitles to other releases; offer explicitly labelled tracks.
- return {streams:streams,allSubtitles:tracks};
+ return {streams:streams,allSubtitles:checkedTracks.filter(Boolean)};
 }
 async function extractStreamUrl(url){try{
  var id=shID(url),m=String(url).match(/\/(\d+)(?:[?#].*)?$/);if(!m)throw Error('Select an episode');
@@ -51,6 +74,6 @@ async function extractStreamUrl(url){try{
  var data=await shJSON(SH_BASE+'/api/episode','POST',request);
  if(data.status==='ready'&&first.status==='ready'&&Array.isArray(first.variants)){
   first.variants.forEach(function(v){var found=data.variants.find(function(x){return x.id===v.id;});if(!found)data.variants.push(v);else{found.sources=found.sources||[];(v.sources||[]).forEach(function(s){if(!found.sources.some(function(x){return x.id===s.id;}))found.sources.unshift(s);});}});
- }
- return JSON.stringify(shResults(data));
+ }else if(data.status!=='ready'&&first.status==='ready')data=first;
+ return JSON.stringify(await shResults(data));
  }catch(e){shLog(e);return JSON.stringify({streams:[]});}}
