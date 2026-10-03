@@ -1,4 +1,4 @@
-/* Shiro SUB 1.0.6. MIT. Japanese/sub variants only; original media timelines. */
+/* Shiro SUB 1.0.7. MIT. Japanese/sub variants only; original media timelines. */
 var SH_BASE='https://www.shiro.so',SH_COOKIE='',SH_CACHE={},SH_WEB=false,SH_RATE_RETRIED=false;
 var SH_UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
 function shLog(e){console.log('Shiro: '+String(e&&e.message||e));}
@@ -15,19 +15,19 @@ async function shFetch(url,method,body){
  var payload=body==null?null:typeof body==='string'?body:JSON.stringify(body);
  var site=url.indexOf(SH_BASE+'/')===0,r;
  try{r=await fetchv2(url,h,method||'GET',payload,site&&SH_WEB?{engine:'webview'}:null);}
- catch(e){var failure=Error('Shiro 1.0.6 '+(SH_WEB&&site?'WebKit':'native')+' '+(method||'GET')+' '+url.split('?')[0]+': '+String(e&&e.message||e));failure.transport=site;throw failure;}
+ catch(e){var failure=Error('Shiro 1.0.7 '+(SH_WEB&&site?'WebKit':'native')+' '+(method||'GET')+' '+url.split('?')[0]+': '+String(e&&e.message||e));failure.transport=site;throw failure;}
  if(site){var m=shHeader(r,'set-cookie').match(/(?:^|[,;]\s*)(shiro_watch=[^;,\s]+)/);if(m)SH_COOKIE=m[1];}
  if(site&&r&&r.status===429){
   var retry=shHeader(r,'retry-after'),seconds=Number(retry);
   if(!isFinite(seconds)||seconds<=0)seconds=retry?Math.ceil((Date.parse(retry)-Date.now())/1000):10;
   if(!isFinite(seconds)||seconds<=0)seconds=10;
   if(!SH_RATE_RETRIED&&seconds<=60&&typeof setTimeout==='function'){
-   SH_RATE_RETRIED=true;console.log('Shiro 1.0.6: site rate limit; retrying after '+seconds+' seconds');
+   SH_RATE_RETRIED=true;console.log('Shiro 1.0.7: site rate limit; retrying after '+seconds+' seconds');
    await shDelay(seconds*1000);return await shFetch(url,method,body);
   }
-  throw Error('Shiro 1.0.6: site rate limit; retry after '+seconds+' seconds');
+  throw Error('Shiro 1.0.7: site rate limit; retry after '+seconds+' seconds');
  }
- if(r&&r.status>=400){var failure=Error('Shiro 1.0.6 HTTP '+r.status+' '+(method||'GET')+' '+url.split('?')[0]);failure.session=site&&(r.status===401||r.status===403);throw failure;}
+ if(r&&r.status>=400){var failure=Error('Shiro 1.0.7 HTTP '+r.status+' '+(method||'GET')+' '+url.split('?')[0]);failure.session=site&&(r.status===401||r.status===403);throw failure;}
  return typeof r==='string'?r:typeof r.text==='function'?await r.text():r._data||r.body;
 }
 async function shJSON(url,method,body){var s=await shFetch(url,method,body);if(typeof s!=='string'||/^\s*</.test(s))throw Error('Expected JSON response');return JSON.parse(s);}
@@ -43,7 +43,7 @@ async function extractDetails(url){try{var d=await shDetail(shID(url));return JS
 async function extractEpisodes(url){try{var d=await shDetail(shID(url)),out=[],n=shCount(d);for(var i=1;i<=n;i++)out.push({number:i,href:shHref(d)+'/'+i});return JSON.stringify(out);}catch(e){shLog(e);return '[]';}}
 async function shResults(data){
  if(data.status!=='ready'||!Array.isArray(data.variants))throw Error('Episode unavailable: '+(data.reason||data.status));
- var streams=[],tracks=[],seen={},trackSeen={};
+ var streams=[],seen={};
  data.variants.filter(function(v){return v.id==='sub'||v.id==='hsub';}).forEach(function(v){(v.sources||[]).forEach(function(s){
   if(!s.url||!(/mpegurl/i.test(s.type)||s.type==='video/mp4'))return;
   var u=shURL(s.url);if(seen[u])return;seen[u]=true;
@@ -51,11 +51,12 @@ async function shResults(data){
   // Return signed URLs immediately. Shiroxi converts binary probe reads to text,
   // which can make valid MP4 or HLS streams look empty before playback starts.
   streams.push({title:label,streamUrl:u,headers:shHeaders()});
-  (s.tracks||[]).forEach(function(t){if(!t.src||!(/^(en|eng)(-|$)/i.test(t.language||'')||/^English/i.test(t.label||'')))return;var tu=shURL(t.src);if(trackSeen[tu])return;trackSeen[tu]=true;tracks.push({title:String(s.label||'Server')+' — '+(t.label||'English'),url:tu,headers:shHeaders()});});
  });});
  streams.sort(function(a,b){return Number(b.title.indexOf('MP4')>=0)-Number(a.title.indexOf('MP4')>=0);});
- if(!streams.length)throw Error('Shiro 1.0.6: this episode returned no Sub or Hard Sub sources');
- return {streams:streams,allSubtitles:tracks};
+ if(!streams.length)throw Error('Shiro 1.0.7: this episode returned no Sub or Hard Sub sources');
+ // Shiroxi applies top-level subtitle files to every server, including Hard Sub.
+ // Omit subtitle/subtitles/allSubtitles so it cannot auto-load a second overlay.
+ return {streams:streams};
 }
 function shDelay(ms){return typeof setTimeout==='function'?new Promise(function(resolve){setTimeout(resolve,ms);}):Promise.resolve();}
 async function shEpisodeData(request){
@@ -69,12 +70,12 @@ async function shEpisodeData(request){
 }
 async function shOpenEpisode(url){
  if(!SH_WEB){await shFetch(url);return;}
- if(typeof networkFetch!=='function')throw Error('Shiro 1.0.6: this Shiroxi version does not provide the browser request engine');
+ if(typeof networkFetch!=='function')throw Error('Shiro 1.0.7: this Shiroxi version does not provide the browser request engine');
  // WebKit hides Set-Cookie from fetch responses. Read its shared cookie store
  // through networkFetch so native video playback receives the same watch cookie.
  var page=await networkFetch(url,{timeoutSeconds:8,returnHTML:false,returnCookies:true,headers:{'User-Agent':SH_UA}});
  var watch=page&&page.cookies&&page.cookies.shiro_watch;
- if(!watch||!/^[^\x00-\x20\x7f;,]+$/.test(String(watch)))throw Error('Shiro 1.0.6 browser session: '+(page&&page.error||'watch cookie missing'));
+ if(!watch||!/^[^\x00-\x20\x7f;,]+$/.test(String(watch)))throw Error('Shiro 1.0.7 browser session: '+(page&&page.error||'watch cookie missing'));
  SH_COOKIE='shiro_watch='+watch;
 }
 async function shLoadStreams(d,episode){
@@ -93,14 +94,14 @@ async function shLoadStreams(d,episode){
 }
 async function extractStreamUrl(url){try{
  SH_RATE_RETRIED=false;
- console.log('Shiro SUB 1.0.6: resolving episode');
+ console.log('Shiro SUB 1.0.7: resolving episode');
  var id=shID(url),m=String(url).trim().match(/\/(\d+)(?:[?#].*)?$/);if(!m)throw Error('Select an episode');
  var episode=Number(m[1]),d=await shDetail(id);if(episode<1||episode>shCount(d))throw Error('Episode outside aired range');
  var result;
  try{result=await shLoadStreams(d,episode);}
  catch(e){
   if(SH_WEB||!(e.transport||e.session))throw e;
-  console.log('Shiro SUB 1.0.6: native request failed; retrying in WebKit');
+  console.log('Shiro SUB 1.0.7: native request failed; retrying in WebKit');
   SH_WEB=true;SH_COOKIE='';
   result=await shLoadStreams(d,episode);
  }
