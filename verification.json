@@ -1,0 +1,83 @@
+{
+  "version": "1.0.6",
+  "date": "2026-10-02",
+  "live": {
+    "manifestVersion": "1.0.6",
+    "searchRoute": "https://www.shiro.so/browse?q=%s",
+    "searchQueries": [
+      "one piece",
+      "frieren",
+      "naruto"
+    ],
+    "episodes": 1180,
+    "subServers": [
+      "Cherry • Sub • MP4",
+      "Plum • Sub • HLS",
+      "Cherry 2 • Sub • HLS",
+      "Cherry 3 • Sub • HLS",
+      "Lemon • Sub • HLS",
+      "Grape • Sub • HLS"
+    ],
+    "subtitleTracks": 3,
+    "checks": [
+      "catalog search",
+      "details",
+      "episode listing",
+      "all sub server URLs",
+      "MP4 range",
+      "HLS master, child playlist and sample segment",
+      "English subtitle files"
+    ]
+  },
+  "exactScreenshotTitle": {
+    "anilistId": 200637,
+    "episodesResolvedAcrossRuns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "playlistsFetched": [
+      1,
+      6,
+      12
+    ],
+    "observations": [
+      "temporary unavailable response on episode 7; resolved on retry",
+      "HTTP 429 during repeated checks; Retry-After handling added"
+    ]
+  },
+  "fallback": {
+    "version": "1.0.6",
+    "transport": "curl simulation of WebKit cookie-store contract",
+    "forcedNativeError": "bad URL",
+    "anilistId": 200637,
+    "episode": 1,
+    "streams": [
+      "Lemon • Sub • HLS"
+    ],
+    "playlistsPassed": true
+  },
+  "regressions": [
+    "native bad URL at page and API",
+    "shared browser cookie passed to playback",
+    "Sub and Hard Sub included, Dub excluded",
+    "old saved apex links accepted",
+    "subsequent episode reuses selected engine",
+    "missing cookie and missing browser API reject explicitly",
+    "Retry-After delay respected, retry bounded",
+    "preferred source retained when additional server request fails"
+  ],
+  "unverified": [
+    "execution inside user iPhone Shiroxi",
+    "long-duration audio/video sync"
+  ]
+}

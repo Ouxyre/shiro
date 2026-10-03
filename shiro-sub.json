@@ -1,18 +1,18 @@
 {
-  "sourceName": "Shiro (SUB) Refresh",
-  "iconUrl": "https://shiro.so/favicon.ico",
+  "sourceName": "Shiro (SUB)",
+  "iconUrl": "https://www.shiro.so/favicon.ico",
   "author": {
     "name": "Custom module",
-    "icon": "https://shiro.so/favicon.ico"
+    "icon": "https://www.shiro.so/favicon.ico"
   },
-  "version": "1.0.5",
+  "version": "1.0.6",
   "language": "Japanese (SUB)",
-  "description": "Cache-refresh manifest for Shiro Japanese-audio Sub and Hard Sub servers. Dub excluded.",
-  "baseUrl": "https://shiro.so/",
+  "description": "Shiro Japanese-audio Sub and Hard Sub servers. Dub excluded.",
+  "baseUrl": "https://www.shiro.so/",
   "streamType": "HLS",
   "quality": "1080p",
-  "searchBaseUrl": "https://shiro.so/browse?q=%s",
-  "scriptUrl": "https://raw.githubusercontent.com/Ouxyre/shiro/main/shiro-sub.js?rev=1.0.4",
+  "searchBaseUrl": "https://www.shiro.so/browse?q=%s",
+  "scriptUrl": "https://raw.githubusercontent.com/Ouxyre/shiro/main/shiro-sub.js?rev=1.0.6",
   "type": "anime",
   "downloadSupport": false,
   "asyncJS": true,

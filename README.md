@@ -1,22 +1,38 @@
-# Shiro (SUB) for Sora / Shiroxi
+# Shiro SUB 1.0.6 for Shiroxi / Sora
 
-This module searches Shiro's catalog, lists aired episodes, and returns every available Japanese-audio **Sub** and **Hard Sub** source. Dub is excluded. It returns each freshly signed server directly to Shiroxi; this avoids falsely rejecting playable binary streams during the module's loading step. When a source has an English subtitle track, it is included with the server name so you can match it to that server.
+Japanese-audio Sub and Hard Sub servers; Dub excluded. Search and episode metadata come from AniList. Playback sources come from Shiro's episode API. An AniList listing does not guarantee that Shiro has that episode.
 
-Shiro provides HLS and MP4 servers. Each is returned separately so you can switch servers if one buffers or drifts. The module passes through the site's original media and cannot correct a timing problem already present in a stream or in the app's player.
+## Replace the hosted files
 
-## Host and install
+This JSON is already configured for your repository, `Ouxyre/shiro`, branch `main`.
 
-1. Upload `shiro-sub.js` and `shiro-sub.json` to a public GitHub repository or another HTTPS file host.
-2. Open `configure.html` on your computer. Paste the public **raw folder URL** containing the files, for example `https://raw.githubusercontent.com/YOURNAME/sora-sources/main/`.
-3. Download the configured JSON and upload it to the same folder, replacing `shiro-sub.json`.
-4. In Sora or Shiroxi, import the raw JSON URL, for example `https://raw.githubusercontent.com/YOURNAME/sora-sources/main/shiro-sub.json`.
+1. Upload **both** `shiro-sub.js` and `shiro-sub.json` from this package to that repository, replacing the previous files with the same names.
+2. Remove the previous Shiro source from Shiroxi, then import:
+   `https://raw.githubusercontent.com/Ouxyre/shiro/main/shiro-sub.json`
+3. The installed source must show version **1.0.6**. Its script URL ends with `shiro-sub.js?rev=1.0.6`.
 
-The manifest's search route points to Shiro's Browse search (`/browse?q=`); the module then queries Shiro's catalog source for matching titles.
+Changing the JSON filename alone does not change the playback script. Both files need replacing.
 
-Use the raw GitHub URL, not a page address containing `/blob/`. The helper works locally and only prepares the JSON; the module files must be hosted publicly for the app to load them.
+For another host, open `configure.html`, enter the public HTTPS raw folder URL, download the configured JSON, then upload it alongside the JS file.
 
-## Notes
+## What changed
 
-The source needs a Sora/Shiroxi version whose `fetchv2` supports POST requests and returns response headers. POST bodies are sent as JSON text for Shiroxi compatibility. It uses a short-lived Shiro watch cookie and passes it to the selected stream and subtitle. On October 2, 2026, live checks returned search results for One Piece, Frieren and Naruto; details and episodes loaded; six Sub servers, a nested HLS playlist and sample segment, and three English subtitle tracks passed. The source now returns the signed servers without preloading binary media, because Shiroxi represents binary responses as text during scripting. This does not verify long-duration audio sync. Network or Cloudflare restrictions may still affect the app.
+- Uses `https://www.shiro.so` for site requests and media, while accepting saved episode links on `https://shiro.so`.
+- If native site requests fail, starts a normal episode page in Shiroxi's browser engine, reads its watch cookie, and retries the API with `fetchv2(..., {engine: "webview"})`. The browser engines share their cookie store in the current Shiroxi source. The selected stream and subtitle receive that cookie too.
+- Sends POST bodies as JSON text, matching Shiroxi's bridge.
+- Returns all supplied Sub/Hard Sub servers without binary preloading. MP4 appears first when available.
+- Honors the site's Retry-After delay once, up to 60 seconds. Keeps the preferred playable source if the additional-server request subsequently fails. Persistent limits are reported explicitly.
+- Stream errors reject with the version, request engine and failed request. They are no longer silently converted to an empty stream list.
 
-The module does not transcode or alter media timestamps. Try the MP4 server or another server if HLS drifts; if every server drifts at the same point, the issue may be in the source encoding or the app's playback.
+The browser fallback requires a Shiroxi version providing `networkFetch` and the WebKit option in `fetchv2`. If that feature is absent, the log says so. It does not click page controls or use the page's Dub selection.
+
+## Verification, October 2, 2026
+
+- Live search: One Piece, Frieren and Naruto.
+- Live One Piece episode 1: six Sub servers, MP4 range response, HLS master and child playlists, sample media segment, and three English subtitle files.
+- The exact AniList title from your screenshot (200637): all twelve episodes returned a Lemon Sub stream across the checks; playlists from episodes 1, 6 and 12 were fetched. One temporary unavailable response and one site rate limit occurred during repeated checks.
+- Forced native "bad URL" on the episode page and API: browser fallback, watch-cookie transfer, saved links and Sub-only filtering passed regression tests.
+- A curl simulation of the browser cookie-store contract recovered from a forced native "bad URL" against the live site; its stream playlist loaded with the returned playback headers.
+- Rate-limit tests cover waiting as requested, bounded retries, retaining an already-found stream and explicit failure.
+
+These checks do not run the module inside an iPhone or WKWebView. Installation on your specific Shiroxi build and long-duration audio/video synchronization remain unverified. The module passes through the original media and does not change its timestamps.
