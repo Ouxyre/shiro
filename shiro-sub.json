@@ -1,18 +1,18 @@
 {
   "sourceName": "Shiro (SUB)",
-  "iconUrl": "https://www.shiro.so/favicon.ico",
+  "iconUrl": "https://anv.to/favicon.ico",
   "author": {
     "name": "Custom module",
-    "icon": "https://www.shiro.so/favicon.ico"
+    "icon": "https://anv.to/favicon.ico"
   },
-  "version": "1.0.7",
+  "version": "1.0.8",
   "language": "Japanese (SUB)",
-  "description": "Shiro Japanese-audio Sub and Hard Sub servers. Uses subtitles already in the video; no external subtitle overlay. Dub excluded.",
-  "baseUrl": "https://www.shiro.so/",
+  "description": "Shiro (now anv.to): Japanese Sub and Hard Sub servers, no external subtitle overlay. Dub excluded.",
+  "baseUrl": "https://anv.to/",
   "streamType": "HLS",
   "quality": "1080p",
-  "searchBaseUrl": "https://www.shiro.so/browse?q=%s",
-  "scriptUrl": "https://raw.githubusercontent.com/Ouxyre/shiro/main/shiro-sub.js?rev=1.0.7",
+  "searchBaseUrl": "https://anv.to/browse?q=%s",
+  "scriptUrl": "https://raw.githubusercontent.com/Ouxyre/shiro/main/shiro-sub.js?rev=1.0.8",
   "type": "anime",
   "downloadSupport": false,
   "asyncJS": true,

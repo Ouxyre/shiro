@@ -1,8 +1,8 @@
-/* Shiro SUB 1.0.7. MIT. Japanese/sub variants only; original media timelines. */
-var SH_BASE='https://www.shiro.so',SH_COOKIE='',SH_CACHE={},SH_WEB=false,SH_RATE_RETRIED=false;
+/* Shiro SUB 1.0.8. MIT. Japanese/sub variants only; original media timelines. */
+var SH_BASE='https://anv.to',SH_COOKIE='',SH_CACHE={},SH_WEB=false,SH_RATE_RETRIED=false;
 var SH_UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
 function shLog(e){console.log('Shiro: '+String(e&&e.message||e));}
-function shURL(p){if(/^https:\/\/(?:www\.)?shiro\.so\//.test(p))return p.replace(/^https:\/\/(?:www\.)?shiro\.so/,SH_BASE);if(/^https:\/\//.test(p))return p;if(/^\/(?!\/)/.test(p))return SH_BASE+p;throw Error('Invalid media URL');}
+function shURL(p){if(/^https:\/\/(?:www\.)?(?:shiro\.so|anv\.to)\//.test(p))return p.replace(/^https:\/\/(?:www\.)?(?:shiro\.so|anv\.to)/,SH_BASE);if(/^https:\/\//.test(p))return p;if(/^\/(?!\/)/.test(p))return SH_BASE+p;throw Error('Invalid media URL');}
 function shHeaders(){var h={'User-Agent':SH_UA,Referer:SH_BASE+'/',Origin:SH_BASE};if(SH_COOKIE)h.Cookie=SH_COOKIE;return h;}
 function shHeader(r,name){if(!r||!r.headers)return '';if(typeof r.headers.get==='function')return r.headers.get(name)||'';var value='';Object.keys(r.headers).forEach(function(k){if(k.toLowerCase()===name.toLowerCase())value=String(r.headers[k]);});return value;}
 async function shFetch(url,method,body){
@@ -15,25 +15,25 @@ async function shFetch(url,method,body){
  var payload=body==null?null:typeof body==='string'?body:JSON.stringify(body);
  var site=url.indexOf(SH_BASE+'/')===0,r;
  try{r=await fetchv2(url,h,method||'GET',payload,site&&SH_WEB?{engine:'webview'}:null);}
- catch(e){var failure=Error('Shiro 1.0.7 '+(SH_WEB&&site?'WebKit':'native')+' '+(method||'GET')+' '+url.split('?')[0]+': '+String(e&&e.message||e));failure.transport=site;throw failure;}
+ catch(e){var failure=Error('Shiro 1.0.8 '+(SH_WEB&&site?'WebKit':'native')+' '+(method||'GET')+' '+url.split('?')[0]+': '+String(e&&e.message||e));failure.transport=site;throw failure;}
  if(site){var m=shHeader(r,'set-cookie').match(/(?:^|[,;]\s*)(shiro_watch=[^;,\s]+)/);if(m)SH_COOKIE=m[1];}
  if(site&&r&&r.status===429){
   var retry=shHeader(r,'retry-after'),seconds=Number(retry);
   if(!isFinite(seconds)||seconds<=0)seconds=retry?Math.ceil((Date.parse(retry)-Date.now())/1000):10;
   if(!isFinite(seconds)||seconds<=0)seconds=10;
   if(!SH_RATE_RETRIED&&seconds<=60&&typeof setTimeout==='function'){
-   SH_RATE_RETRIED=true;console.log('Shiro 1.0.7: site rate limit; retrying after '+seconds+' seconds');
+   SH_RATE_RETRIED=true;console.log('Shiro 1.0.8: site rate limit; retrying after '+seconds+' seconds');
    await shDelay(seconds*1000);return await shFetch(url,method,body);
   }
-  throw Error('Shiro 1.0.7: site rate limit; retry after '+seconds+' seconds');
+  throw Error('Shiro 1.0.8: site rate limit; retry after '+seconds+' seconds');
  }
- if(r&&r.status>=400){var failure=Error('Shiro 1.0.7 HTTP '+r.status+' '+(method||'GET')+' '+url.split('?')[0]);failure.session=site&&(r.status===401||r.status===403);throw failure;}
+ if(r&&r.status>=400){var failure=Error('Shiro 1.0.8 HTTP '+r.status+' '+(method||'GET')+' '+url.split('?')[0]);failure.session=site&&(r.status===401||r.status===403);throw failure;}
  return typeof r==='string'?r:typeof r.text==='function'?await r.text():r._data||r.body;
 }
 async function shJSON(url,method,body){var s=await shFetch(url,method,body);if(typeof s!=='string'||/^\s*</.test(s))throw Error('Expected JSON response');return JSON.parse(s);}
 var SH_FIELDS='id idMal title { english romaji native } description startDate { year } coverImage { large } episodes status nextAiringEpisode { episode } streamingEpisodes { title }';
 async function shGraph(query,variables){var r=await shJSON('https://graphql.anilist.co','POST',{query:query,variables:variables});if(r.errors||!r.data)throw Error('Catalog unavailable');return r.data;}
-function shID(url){var m=String(url).trim().match(/^https:\/\/(?:www\.)?shiro\.so\/anime\/(\d+)(?:-|\/|$)/);if(!m)throw Error('Invalid Shiro URL');return Number(m[1]);}
+function shID(url){var m=String(url).trim().match(/^https:\/\/(?:www\.)?(?:shiro\.so|anv\.to)\/anime\/(\d+)(?:-|\/|$)/);if(!m)throw Error('Invalid Shiro URL');return Number(m[1]);}
 function shTitle(x){return x.title.english||x.title.romaji||String(x.id);}
 function shHref(x){var name=shTitle(x);try{name=name.normalize('NFKD').replace(/[\u0300-\u036f]/g,'');}catch(e){}return SH_BASE+'/anime/'+x.id+'-'+name.toLowerCase().replace(/&/g,' and ').replace(/[×✕]/g,' x ').replace(/[’']/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').replace(/-{2,}/g,'-');}
 async function shDetail(id){if(SH_CACHE[id])return SH_CACHE[id];var d=await shGraph('query($id:Int){Media(id:$id,type:ANIME){'+SH_FIELDS+'}}',{id:id});if(!d.Media)throw Error('Title missing');if(Object.keys(SH_CACHE).length>40)SH_CACHE={};return SH_CACHE[id]=d.Media;}
@@ -53,7 +53,7 @@ async function shResults(data){
   streams.push({title:label,streamUrl:u,headers:shHeaders()});
  });});
  streams.sort(function(a,b){return Number(b.title.indexOf('MP4')>=0)-Number(a.title.indexOf('MP4')>=0);});
- if(!streams.length)throw Error('Shiro 1.0.7: this episode returned no Sub or Hard Sub sources');
+ if(!streams.length)throw Error('Shiro 1.0.8: this episode returned no Sub or Hard Sub sources');
  // Shiroxi applies top-level subtitle files to every server, including Hard Sub.
  // Omit subtitle/subtitles/allSubtitles so it cannot auto-load a second overlay.
  return {streams:streams};
@@ -70,12 +70,12 @@ async function shEpisodeData(request){
 }
 async function shOpenEpisode(url){
  if(!SH_WEB){await shFetch(url);return;}
- if(typeof networkFetch!=='function')throw Error('Shiro 1.0.7: this Shiroxi version does not provide the browser request engine');
+ if(typeof networkFetch!=='function')throw Error('Shiro 1.0.8: this Shiroxi version does not provide the browser request engine');
  // WebKit hides Set-Cookie from fetch responses. Read its shared cookie store
  // through networkFetch so native video playback receives the same watch cookie.
  var page=await networkFetch(url,{timeoutSeconds:8,returnHTML:false,returnCookies:true,headers:{'User-Agent':SH_UA}});
  var watch=page&&page.cookies&&page.cookies.shiro_watch;
- if(!watch||!/^[^\x00-\x20\x7f;,]+$/.test(String(watch)))throw Error('Shiro 1.0.7 browser session: '+(page&&page.error||'watch cookie missing'));
+ if(!watch||!/^[^\x00-\x20\x7f;,]+$/.test(String(watch)))throw Error('Shiro 1.0.8 browser session: '+(page&&page.error||'watch cookie missing'));
  SH_COOKIE='shiro_watch='+watch;
 }
 async function shLoadStreams(d,episode){
@@ -94,14 +94,14 @@ async function shLoadStreams(d,episode){
 }
 async function extractStreamUrl(url){try{
  SH_RATE_RETRIED=false;
- console.log('Shiro SUB 1.0.7: resolving episode');
+ console.log('Shiro SUB 1.0.8: resolving episode');
  var id=shID(url),m=String(url).trim().match(/\/(\d+)(?:[?#].*)?$/);if(!m)throw Error('Select an episode');
  var episode=Number(m[1]),d=await shDetail(id);if(episode<1||episode>shCount(d))throw Error('Episode outside aired range');
  var result;
  try{result=await shLoadStreams(d,episode);}
  catch(e){
   if(SH_WEB||!(e.transport||e.session))throw e;
-  console.log('Shiro SUB 1.0.7: native request failed; retrying in WebKit');
+  console.log('Shiro SUB 1.0.8: native request failed; retrying in WebKit');
   SH_WEB=true;SH_COOKIE='';
   result=await shLoadStreams(d,episode);
  }
