@@ -1,0 +1,21 @@
+{
+  "sourceName": "AnimeGG (SUB)",
+  "iconUrl": "https://www.animegg.org/images/animegg-favicon.png",
+  "author": {
+    "name": "Custom module",
+    "icon": "https://www.animegg.org/images/animegg-favicon.png"
+  },
+  "version": "1.0.0",
+  "language": "Japanese (SUB)",
+  "description": "AnimeGG subbed players. Highest available quality first, all listed MP4 qualities selectable, no added subtitle overlay.",
+  "baseUrl": "https://www.animegg.org/",
+  "streamType": "MP4",
+  "quality": "1080p",
+  "searchBaseUrl": "https://www.animegg.org/search/?q=%s",
+  "scriptUrl": "https://raw.githubusercontent.com/Ouxyre/shiro/main/animegg-sub.js?rev=1.0.0",
+  "type": "anime",
+  "downloadSupport": false,
+  "asyncJS": true,
+  "streamAsyncJS": true,
+  "softsub": false
+}

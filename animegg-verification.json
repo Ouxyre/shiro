@@ -1,0 +1,178 @@
+{
+  "testedAt": "2026-10-10T04:06:08.360Z",
+  "runtime": "Node VM with fetchv2-shaped response; no DOM, URL or browser globals",
+  "searches": [
+    {
+      "query": "one piece",
+      "count": 78,
+      "titles": [
+        "One Piece: Episode of Merry - Mou Hitori no Nakama no Monogatari",
+        "One Piece",
+        "Toriko",
+        "One Piece: Strong World",
+        "One Piece Film Z"
+      ]
+    },
+    {
+      "query": "naruto",
+      "count": 55,
+      "titles": [
+        "Naruto",
+        "Naruto: Honoo no Chuunin Shiken! Naruto vs. Konohamaru!! (OVA)",
+        "Naruto Shippuden",
+        "Naruto x UT",
+        "Naruto the Movie 2: Legend of the Stone of Gelel"
+      ]
+    },
+    {
+      "query": "apothecary",
+      "count": 3,
+      "titles": [
+        "Kusuriya no Hitorigoto",
+        "The apothecary diaries season 2",
+        "Kusuriya no Hitorigoto 3rd Season"
+      ]
+    },
+    {
+      "query": "zzqnonexistentshowzx",
+      "count": 0,
+      "titles": []
+    }
+  ],
+  "shows": [
+    {
+      "title": "One Piece",
+      "href": "https://www.animegg.org/series/one-piece",
+      "descriptionLength": 438,
+      "episodeCount": 1160,
+      "testedEpisode": 1180,
+      "qualities": [
+        "01 - 1080p - Animegg (SUB)",
+        "02 - 720p - Animegg (SUB)",
+        "03 - 480p - Animegg (SUB)"
+      ]
+    },
+    {
+      "title": "Naruto",
+      "href": "https://www.animegg.org/series/naruto",
+      "descriptionLength": 579,
+      "episodeCount": 220,
+      "testedEpisode": 1,
+      "qualities": [
+        "01 - 480p - Animegg (SUB)"
+      ]
+    },
+    {
+      "title": "The Apothecary Diaries (Kusuriya no Hitorigoto)",
+      "href": "https://www.animegg.org/series/kusuriya-no-hitorigoto",
+      "descriptionLength": 525,
+      "episodeCount": 24,
+      "testedEpisode": 2,
+      "qualities": [
+        "01 - 1080p - Animegg (SUB)",
+        "02 - 720p - Animegg (SUB)",
+        "03 - 480p - Animegg (SUB)",
+        "04 - 360p - Animegg (SUB)"
+      ]
+    }
+  ],
+  "media": [
+    {
+      "show": "One Piece",
+      "title": "01 - 1080p - Animegg (SUB)",
+      "status": 206,
+      "bytes": 262144,
+      "contentType": "video/mp4",
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "host": "s150.vidcache.net:8166"
+    },
+    {
+      "show": "One Piece",
+      "title": "02 - 720p - Animegg (SUB)",
+      "status": 206,
+      "bytes": 262144,
+      "contentType": "video/mp4",
+      "dimensions": {
+        "width": 1280,
+        "height": 720
+      },
+      "host": "s156.vidcache.net:8166"
+    },
+    {
+      "show": "One Piece",
+      "title": "03 - 480p - Animegg (SUB)",
+      "status": 206,
+      "bytes": 262144,
+      "contentType": "video/mp4",
+      "dimensions": {
+        "width": 853.3333282470703,
+        "height": 480
+      },
+      "host": "s150.vidcache.net:8166"
+    },
+    {
+      "show": "Naruto",
+      "title": "01 - 480p - Animegg (SUB)",
+      "status": 206,
+      "bytes": 262144,
+      "contentType": "video/mp4",
+      "dimensions": {
+        "width": 768,
+        "height": 576
+      },
+      "host": "s247.vidcache.net:8166"
+    },
+    {
+      "show": "The Apothecary Diaries (Kusuriya no Hitorigoto)",
+      "title": "01 - 1080p - Animegg (SUB)",
+      "status": 206,
+      "bytes": 262144,
+      "contentType": "video/mp4",
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "host": "s158.vidcache.net:8166"
+    },
+    {
+      "show": "The Apothecary Diaries (Kusuriya no Hitorigoto)",
+      "title": "02 - 720p - Animegg (SUB)",
+      "status": 206,
+      "bytes": 262144,
+      "contentType": "video/mp4",
+      "dimensions": null,
+      "host": "s227.vidcache.net:8166"
+    },
+    {
+      "show": "The Apothecary Diaries (Kusuriya no Hitorigoto)",
+      "title": "03 - 480p - Animegg (SUB)",
+      "status": 206,
+      "bytes": 262144,
+      "contentType": "video/mp4",
+      "dimensions": null,
+      "host": "s162.vidcache.net:8166"
+    },
+    {
+      "show": "The Apothecary Diaries (Kusuriya no Hitorigoto)",
+      "title": "04 - 360p - Animegg (SUB)",
+      "status": 206,
+      "bytes": 262144,
+      "contentType": "video/mp4",
+      "dimensions": null,
+      "host": "s119.vidcache.net:8166"
+    }
+  ],
+  "regressions": [
+    "Dub player excluded on live mixed-language episode",
+    "Dub-only season does not produce fake subbed episodes",
+    "720p sorts ahead of 480p when 1080p is absent",
+    "No external subtitle fields",
+    "All functions return JSON strings",
+    "Media responds to byte-range requests with MP4 bytes",
+    "Invalid page URL rejected",
+    "No-match search returns empty array"
+  ]
+}
